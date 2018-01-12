@@ -2,30 +2,30 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3860013123</fileChecksum>
+  <fileChecksum>3532879979</fileChecksum>
   <configuration>
     <name>Debug</name>
     <outputs>
       <file>$PROJ_DIR$\..\App\main.c</file>
-      <file>$PROJ_DIR$\..\App\stm8s_it.h</file>
-      <file>$PROJ_DIR$\..\App\stm8s_it.c</file>
-      <file>$PROJ_DIR$\..\Bsp\stm8s.h</file>
       <file>$PROJ_DIR$\..\App\main.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\main.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm8s_it.o</file>
-      <file>$PROJ_DIR$\Debug\Exe\Feeder.out</file>
+      <file>$PROJ_DIR$\..\App\stm8s_it.c</file>
       <file>$PROJ_DIR$\Debug\Obj\stm8s_it.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\Feeder.pbd</file>
-      <file>$PROJ_DIR$\Debug\Exe\Feeder.bin</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
+      <file>$PROJ_DIR$\..\App\stm8s_it.h</file>
+      <file>$PROJ_DIR$\..\Bsp\stm8s.h</file>
+      <file>$PROJ_DIR$\Debug\Exe\Feeder.out</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\Debug\Exe\Feeder.hex</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm8s_it.o</file>
     </outputs>
     <file>
       <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
           <name>ILINK</name>
-          <file> 9</file>
+          <file> 8</file>
         </tool>
       </outputs>
     </file>
@@ -34,17 +34,17 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 6</file>
+          <file> 5</file>
         </tool>
         <tool>
           <name>ICCSTM8</name>
-          <file> 7</file>
+          <file> 11</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 4 3 5</file>
+          <file> 1 7 9</file>
         </tool>
       </inputs>
     </file>
@@ -53,17 +53,17 @@
       <outputs>
         <tool>
           <name>BICOMP</name>
-          <file> 10</file>
+          <file> 3</file>
         </tool>
         <tool>
           <name>ICCSTM8</name>
-          <file> 8</file>
+          <file> 12</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
           <name>BICOMP</name>
-          <file> 4 1 3 5</file>
+          <file> 1 7 9 6</file>
         </tool>
       </inputs>
     </file>
@@ -72,7 +72,7 @@
       <outputs>
         <tool>
           <name>OBJCOPY</name>
-          <file> 12</file>
+          <file> 10</file>
         </tool>
       </outputs>
     </file>

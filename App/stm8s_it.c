@@ -352,6 +352,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 			time_count1++;
 			time_count2++;
 			time_count3++;
+			time_count4++;
 
             //滚筒马达调速脉冲
 			if(time_count1>Roll_Motor_Speed)
@@ -359,12 +360,12 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 				time_count1=0;
 				if(Roll_Puls)
 				{
-			 		M3_PD2_PLS_J6_3(0);
+			 		ROLL_PWM(0);
 					Roll_Puls = 0;
 				}
 				else
 				{
-					M3_PD2_PLS_J6_3(1);
+					ROLL_PWM(1);
 					Roll_Puls = 1;
 				}
 			}
@@ -375,12 +376,12 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 				time_count2=0;
 				if(Vibra_Puls)
 				{
-			 		M1_PC4_PLS_J5_3(0);
+			 		VIBRA_PWM(0);
 					Vibra_Puls = 0;
 				}
 				else
 				{
-					M1_PC4_PLS_J5_3(1);
+					VIBRA_PWM(1);
 					Vibra_Puls = 1;
 				}
 			}
@@ -391,13 +392,28 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 				time_count3=0;
 				if(Turnplate_Puls)
 				{
-			 		M2_PC6_PLS_J7_3(0);
+			 		TURN_PWM(0);
 					Turnplate_Puls = 0;
 				}
 				else
 				{
-					M2_PC6_PLS_J7_3(1);
+					TURN_PWM(1);
 					Turnplate_Puls = 1;
+				}
+			}
+
+			if(time_count4>1000);
+			{
+				time_count4 = 0;
+				if(Indicate_flag)
+				{
+					INDICATE(0);
+					Indicate_flag = 0;
+				}
+				else
+				{
+					INDICATE(1);
+					Indicate_flag = 1;
 				}
 			}
 

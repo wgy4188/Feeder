@@ -257,8 +257,8 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state>C:\Users\SR00357\Desktop\&#x7A0B;&#x5e8F;&#x6574;&#x7406;\Feeder\App</state>
-          <state>C:\Users\SR00357\Desktop\&#x7A0B;&#x5e8F;&#x6574;&#x7406;\Feeder\Bsp</state>
+          <state>E:\Feeder\App</state>
+          <state>E:\Feeder\Bsp</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -481,15 +481,15 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>Feeder.bin</state>
+          <state>Feeder.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
