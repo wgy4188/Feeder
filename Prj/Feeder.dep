@@ -6,11 +6,6 @@
   <configuration>
     <name>Debug</name>
     <outputs>
-      <file>$PROJ_DIR$\..\App\main.c</file>
-      <file>$PROJ_DIR$\..\App\main.h</file>
-      <file>$PROJ_DIR$\..\App\stm8s_it.c</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm8s_it.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\Feeder.pbd</file>
       <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
       <file>$PROJ_DIR$\..\App\stm8s_it.h</file>
       <file>$PROJ_DIR$\..\Bsp\stm8s.h</file>
@@ -19,32 +14,50 @@
       <file>$PROJ_DIR$\Debug\Exe\Feeder.hex</file>
       <file>$PROJ_DIR$\Debug\Obj\main.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm8s_it.o</file>
+      <file>$PROJ_DIR$\..\App\main.c</file>
+      <file>$PROJ_DIR$\..\App\main.h</file>
+      <file>$PROJ_DIR$\..\App\stm8s_it.c</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm8s_it.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\Feeder.pbd</file>
+      <file>$TOOLKIT_DIR$\lib\dlstm8smn.a</file>
+      <file>$TOOLKIT_DIR$\lib\dbgstm8smd.a</file>
+      <file>$TOOLKIT_DIR$\config\lnkstm8s105c6.icf</file>
     </outputs>
     <file>
-      <name>[ROOT_NODE]</name>
+      <name>$PROJ_DIR$\Debug\Exe\Feeder.out</name>
       <outputs>
         <tool>
-          <name>ILINK</name>
-          <file> 8</file>
+          <name>OBJCOPY</name>
+          <file> 5</file>
         </tool>
       </outputs>
+      <inputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 15 6 7 13 14</file>
+        </tool>
+      </inputs>
     </file>
     <file>
       <name>$PROJ_DIR$\..\App\main.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 5</file>
+          <name>ICCSTM8</name>
+          <file> 6</file>
         </tool>
         <tool>
-          <name>ICCSTM8</name>
-          <file> 11</file>
+          <name>BICOMP</name>
+          <file> 0</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
+          <name>ICCSTM8</name>
+          <file> 2 4 9</file>
+        </tool>
+        <tool>
           <name>BICOMP</name>
-          <file> 1 7 9</file>
+          <file> 2 9 4</file>
         </tool>
       </inputs>
     </file>
@@ -52,27 +65,31 @@
       <name>$PROJ_DIR$\..\App\stm8s_it.c</name>
       <outputs>
         <tool>
-          <name>BICOMP</name>
-          <file> 3</file>
+          <name>ICCSTM8</name>
+          <file> 7</file>
         </tool>
         <tool>
-          <name>ICCSTM8</name>
-          <file> 12</file>
+          <name>BICOMP</name>
+          <file> 11</file>
         </tool>
       </outputs>
       <inputs>
         <tool>
+          <name>ICCSTM8</name>
+          <file> 1 2 4 9</file>
+        </tool>
+        <tool>
           <name>BICOMP</name>
-          <file> 1 7 9 6</file>
+          <file> 9 2 4 1</file>
         </tool>
       </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\Debug\Exe\Feeder.out</name>
+      <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
-          <name>OBJCOPY</name>
-          <file> 10</file>
+          <name>ILINK</name>
+          <file> 3</file>
         </tool>
       </outputs>
     </file>

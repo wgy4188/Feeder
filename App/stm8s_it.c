@@ -352,7 +352,6 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 			time_count1++;
 			time_count2++;
 			time_count3++;
-			time_count4++;
 
             //滚筒马达调速脉冲
 			if(time_count1>Roll_Motor_Speed)
@@ -401,22 +400,6 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 					Turnplate_Puls = 1;
 				}
 			}
-
-			if(time_count4>1000);
-			{
-				time_count4 = 0;
-				if(Indicate_flag)
-				{
-					INDICATE(0);
-					Indicate_flag = 0;
-				}
-				else
-				{
-					INDICATE(1);
-					Indicate_flag = 1;
-				}
-			}
-
 	  }
  }
 

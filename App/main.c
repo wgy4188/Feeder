@@ -90,7 +90,7 @@ void GPIO_Inital(void)
 {
   GPIOA->ODR &=  ~0xFF; 	//
   GPIOA->DDR |=  0x42;      //  01000010   浮空输入，推挽输出
-  GPIOA->CR1 |=  0x7A;      //  01111010
+  GPIOA->CR1 |=  0x7A;      //  01111110
 
   GPIOB->ODR &=  ~0xFF; 	//
   GPIOB->DDR |=  0xFF;      // 11111111
@@ -213,7 +213,7 @@ void Bsp_Inital(void)
 
     //测试等
     WORK_LED(0);
-	INDICATE(1);
+	INDICATE(0);
 
     //LED消影
     TUBE_CLR(0);
@@ -617,7 +617,7 @@ void Setting_Key_Process(void)
 	              if(Menu_Setting.Vibra_Delay_Setting < 12){Menu_Setting.Vibra_Delay_Setting++;Menu_Setting.System_Set_Delay = 50000;}
 	            }else if(1 == Menu_Setting.DN_Flag){
 	              if(0 == Menu_Setting.Beep_Mode){BEEP_A(Enable);}
-	              if(Menu_Setting.Vibra_Delay_Setting > 1){Menu_Setting.Vibra_Delay_Setting--;}
+	              if(Menu_Setting.Vibra_Delay_Setting > 0){Menu_Setting.Vibra_Delay_Setting--;}
 				  Menu_Setting.System_Set_Delay = 50000;
 
 	            }
@@ -647,7 +647,7 @@ void Setting_Key_Process(void)
 
 	            }else if(1 == Menu_Setting.DN_Flag){
 	              if(0 == Menu_Setting.Beep_Mode){BEEP_A(Enable);}
-	              if(Menu_Setting.Vibra_amplitude_Setting > 1){Menu_Setting.Vibra_amplitude_Setting--;}
+	              if(Menu_Setting.Vibra_amplitude_Setting > 0){Menu_Setting.Vibra_amplitude_Setting--;}
 				  Menu_Setting.System_Set_Delay = 50000;
 
 	            }
@@ -677,7 +677,7 @@ void Setting_Key_Process(void)
 
 	            }else if(1 == Menu_Setting.DN_Flag){
 	              if(0 == Menu_Setting.Beep_Mode){BEEP_A(Enable);}
-	              if(Menu_Setting.Roller_Delay_Setting > 1){Menu_Setting.Roller_Delay_Setting--;}
+	              if(Menu_Setting.Roller_Delay_Setting > 0){Menu_Setting.Roller_Delay_Setting--;}
 				  Menu_Setting.System_Set_Delay = 50000;
 
 	            }
@@ -707,7 +707,7 @@ void Setting_Key_Process(void)
 
 	            }else if(1 == Menu_Setting.DN_Flag){
 	              if(0 == Menu_Setting.Beep_Mode){BEEP_A(Enable);}
-	              if(Menu_Setting.Roller_amplitude_Setting > 1){Menu_Setting.Roller_amplitude_Setting--;}
+	              if(Menu_Setting.Roller_amplitude_Setting > 0){Menu_Setting.Roller_amplitude_Setting--;}
 				  Menu_Setting.System_Set_Delay = 50000;
 
 	            }
@@ -737,7 +737,7 @@ void Setting_Key_Process(void)
 
 	            }else if(1 == Menu_Setting.DN_Flag){
 	              if(0 == Menu_Setting.Beep_Mode){BEEP_A(Enable);}
-	              if(Menu_Setting.Turnplate_amplitude_Setting > 1){Menu_Setting.Turnplate_amplitude_Setting--;}
+	              if(Menu_Setting.Turnplate_amplitude_Setting > 0){Menu_Setting.Turnplate_amplitude_Setting--;}
 				  Menu_Setting.System_Set_Delay = 50000;
 
 	            }
@@ -931,6 +931,15 @@ void main(void)
   Bsp_Inital();
   Read_Parameters_from_flash();
 
+  if(Menu_Setting.Counter_Mode==0)
+  {
+		Menu_Setting.Counter = 0;
+  }
+  else
+  {
+		Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
+  }
+
   while(1)
   {
 
@@ -938,7 +947,22 @@ void main(void)
        Setting_Key_Process();
        Scan_Reset_Signal();
 
-	   if((GATE == 0)&&(RollStopFlag)&&(VibraStopFlag)&&(TurnStopFlag))
+       if(GATE == 0)
+	   {
+	   		INDICATE(0);
+	   }
+	   else
+	   {
+	   		INDICATE(1);
+	   }
+
+	   if(SENSOR == 0)
+	   {
+			TURN_POWER(0);
+			TurnStopFlag = 1;
+	   }
+
+	   if((GATE == 0)&&(BUTTON == 0))
 	   {
 		    TIM3->CR1 |= (uint8_t)0x01;
 
@@ -960,11 +984,6 @@ void main(void)
 			TURN_POWER(1); //转盘电机
 			TurnStopFlag=0;
 
-			Menu_Setting.Counter++;
-			if(Menu_Setting.Counter >= Menu_Setting.Setting_Counter_Value*100 )
-			{
-				Menu_Setting.Counter = 5;
-			}
 	   }
 
 	   if(Roll_Motor_Delay <= 0)
@@ -983,6 +1002,23 @@ void main(void)
 	   {
 			TURN_POWER(0);
 			TurnStopFlag = 1;
+
+			if(Menu_Setting.Counter_Mode==0)
+			{
+				Menu_Setting.Counter++;
+				if(Menu_Setting.Counter >= Menu_Setting.Setting_Counter_Value*100 )
+				{
+					Menu_Setting.Counter = 0;
+				}
+			}
+			else
+			{
+			    Menu_Setting.Counter--;
+				if(Menu_Setting.Counter == 0)
+				{
+					Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
+				}
+			}
 	   }
 
 	   if(RollStopFlag && VibraStopFlag && TurnStopFlag)

@@ -55,6 +55,7 @@
 #define FLASH_RASS_KEY2 ((uint8_t)0xAE) /*!< Second RASS key */
 
 //ÊäÈësensor signal
+#define  BUTTON             (GPIOA->IDR&0x04)   //PA2
 #define  GATE          		(GPIOA->IDR&0x08)   //PA3
 #define  SENSOR        		(GPIOA->IDR&0x10)   //PA4
 
