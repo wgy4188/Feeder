@@ -19,16 +19,18 @@ uint16_t Display_delay=0;
 Menu_Setting_Typedef  Menu_Setting;
 
 uint32_t Roll_Motor_Delay=0;
-uint8_t  Roll_Motor_Speed=0;
+uint8_t  Roll_Motor_Amp=0;
 
 uint32_t Vibra_Motor_Delay=0;
-uint8_t  Vibra_Motor_Speed=0;
+uint8_t  Vibra_Motor_Amp=0;
 
 uint32_t Turnplate_Motor_Delay=0;
-uint8_t  Turnplate_Motor_Speed=0;
+uint8_t  Turnplate_Motor_Amp=0;
 
-uint32_t time_count1 = 0, time_count2 = 0, time_count3 = 0, time_count4 = 0;
-uint8_t  Roll_Puls = 0,   Vibra_Puls = 0,  Turnplate_Puls = 0, Indicate_flag = 0;
+uint32_t time_count = 0 ,time1_count = 0, Roll_Duty_Count = 0, Vibra_Duty_Count = 0, Turn_Duty_Count = 0;
+uint8_t  Roll_High_Puls = 0, Vibra_High_Puls = 0, Turn_High_Puls = 0;
+uint8_t  Roll_Puls = 0, Vibra_Puls = 0, Turnplate_Puls = 0;
+uint8_t  RollStopFlag = 1, VibraStopFlag = 1, TurnStopFlag = 1;
 
 void delay_loop(u16 wt)
 {
@@ -50,7 +52,7 @@ void Master_Clk_Inital(void)
 
 }
 
-//timer2 初始化定时器2
+//timer2 计时
 void Timer2_setting(void)
 {
     TIM2->PSCR = (uint8_t)(6);
@@ -67,7 +69,7 @@ void Timer2_setting(void)
 	return;
 }
 
-//TIM3_CH2 边沿触发模式
+//TIM3 翻转电平
 void TIM3_CH2_Edge_PWM(void)
 {
     TIM3->PSCR = (uint8_t)(0x8);
@@ -924,10 +926,6 @@ void Setting_Key_Process(void)
 
 void main(void)
 {
-  static uint8_t RollStopFlag = 1;
-  static uint8_t VibraStopFlag = 1;
-  static uint8_t TurnStopFlag = 1;
-
   Bsp_Inital();
   Read_Parameters_from_flash();
 
@@ -942,11 +940,11 @@ void main(void)
 
   while(1)
   {
-
        Ok_Key_Process();
        Setting_Key_Process();
        Scan_Reset_Signal();
 
+	   //check gate
        if(GATE == 0)
 	   {
 	   		INDICATE(0);
@@ -959,51 +957,54 @@ void main(void)
 	   if(SENSOR == 0)
 	   {
 			TURN_POWER(0);
+			VIBRA_PWM(1);
 			TurnStopFlag = 1;
 	   }
 
-	   if((GATE == 0)&&(BUTTON == 0))
+	   if(BUTTON == 0)
 	   {
 		    TIM3->CR1 |= (uint8_t)0x01;
 
 			Roll_Motor_Delay =  (uint32_t)Menu_Setting.Roller_Delay_Setting * 1000 * 10;  //设置滚筒延时
-			Roll_Motor_Speed =  Menu_Setting.Roller_amplitude_Setting;                    //设置滚筒速度
+			Roll_Motor_Amp =  Menu_Setting.Roller_amplitude_Setting;                      //设置滚筒速度
 			ROLL_DIR(Menu_Setting.Roller_Direction);                                      //设置方向
-            ROLL_POWER(1); //滚筒电机
 			RollStopFlag=0;
+            ROLL_PWM(0);
 
-
-			Vibra_Motor_Delay = (uint32_t)Menu_Setting.Vibra_Delay_Setting * 1000 * 10; //设置振动延时
-			Vibra_Motor_Speed = Menu_Setting.Vibra_amplitude_Setting;                   //设置振动速度
-			VIBRA_DIR(Menu_Setting.Vibra_Direction__Setting);                           //设置方向
-            VIBRA_POWER(1); //振动电机
+			Vibra_Motor_Delay = (uint32_t)Menu_Setting.Vibra_Delay_Setting * 1000 * 10;  //设置振动延时
+			Vibra_Motor_Amp = Menu_Setting.Vibra_amplitude_Setting;                    //设置振动速度
+			VIBRA_DIR(Menu_Setting.Vibra_Direction__Setting);                            //设置方向
 			VibraStopFlag=0;
+			VIBRA_PWM(0);
 
-			Turnplate_Motor_Speed = Menu_Setting.Turnplate_amplitude_Setting;           //设置转盘速度
-			TURN_DIR(Menu_Setting.Turnplate_Direction);                                //设置方向
-			TURN_POWER(1); //转盘电机
+			Turnplate_Motor_Amp = Menu_Setting.Turnplate_amplitude_Setting;            //设置转盘速度
+			TURN_DIR(Menu_Setting.Turnplate_Direction);                                  //设置方向
 			TurnStopFlag=0;
+			TURN_PWM(0);
 
 	   }
 
 	   if(Roll_Motor_Delay <= 0)
 	   {
 	   		ROLL_POWER(0);
+			ROLL_PWM(1);
 	   		RollStopFlag = 1;
 	   }
 
 	   if(Vibra_Motor_Delay <= 0)
 	   {
 	   		VIBRA_POWER(0);
+			VIBRA_PWM(1);
 	   		VibraStopFlag = 1;
 	   }
 
    	   if(SENSOR == 0)
 	   {
 			TURN_POWER(0);
+			TURN_PWM(1);
 			TurnStopFlag = 1;
 
-			if(Menu_Setting.Counter_Mode==0)
+			if(Menu_Setting.Counter_Mode==0)//递增计数
 			{
 				Menu_Setting.Counter++;
 				if(Menu_Setting.Counter >= Menu_Setting.Setting_Counter_Value*100 )
@@ -1011,7 +1012,7 @@ void main(void)
 					Menu_Setting.Counter = 0;
 				}
 			}
-			else
+			else //递减计数
 			{
 			    Menu_Setting.Counter--;
 				if(Menu_Setting.Counter == 0)
@@ -1021,7 +1022,7 @@ void main(void)
 			}
 	   }
 
-	   if(RollStopFlag && VibraStopFlag && TurnStopFlag)
+	   if(RollStopFlag && VibraStopFlag && TurnStopFlag)//都停止了，关闭脉冲发生
 	   {
 	   		TIM3->CR1 &= ~((uint8_t)0x01);
 	   }

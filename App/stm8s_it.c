@@ -349,33 +349,67 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 	  {
         	TIM3->SR1 &=~(uint8_t)(0x01);//清除中断标志
 
-			time_count1++;
-			time_count2++;
-			time_count3++;
+			time_count++;
+			Roll_Duty_Count++;
+			Vibra_Duty_Count++;
+            Turn_Duty_Count++;
+            time1_count++;
 
-            //滚筒马达调速脉冲
-			if(time_count1>Roll_Motor_Speed)
+            //PWM脉冲 125HZ
+			if(time_count>10)
 			{
-				time_count1=0;
-				if(Roll_Puls)
-				{
-			 		ROLL_PWM(0);
-					Roll_Puls = 0;
-				}
-				else
-				{
-					ROLL_PWM(1);
-					Roll_Puls = 1;
-				}
+				RollStopFlag?ROLL_POWER(0):ROLL_POWER(1);
+				VibraStopFlag?VIBRA_POWER(0):VIBRA_POWER(1);
+				TurnStopFlag?TURN_POWER(0):TURN_POWER(1);
+
+				Roll_High_Puls = 1;
+				Vibra_High_Puls = 1;
+				Turn_High_Puls = 1;
+
+				time_count=0;
+				Roll_Duty_Count=0;
+				Vibra_Duty_Count=0;
+				Turn_Duty_Count=0;
 			}
 
-            //振动马达调速脉冲
-			if(time_count2>Vibra_Motor_Speed)
+			if((Roll_Duty_Count>Roll_Motor_Amp)&&(Roll_High_Puls == 1)&&(!RollStopFlag))
 			{
-				time_count2=0;
-				if(Vibra_Puls)
+                ROLL_POWER(0);
+				Roll_High_Puls=0;
+				Roll_Duty_Count=0;
+			}
+
+			if((Vibra_Duty_Count>Vibra_Motor_Amp)&&(Vibra_High_Puls == 1)&&(!VibraStopFlag))
+			{
+                VIBRA_POWER(0);
+				Vibra_High_Puls=0;
+				Vibra_Duty_Count=0;
+			}
+
+			if((Turn_Duty_Count>Turnplate_Motor_Amp)&&(Turn_High_Puls == 1)&&(!TurnStopFlag))
+			{
+                TURN_POWER(0);
+				Turn_High_Puls=0;
+				Turn_Duty_Count=0;
+			}
+
+			//调速脉冲 1.25Khz
+			if((Roll_Puls)&&(!RollStopFlag))
+			{
+				ROLL_PWM(0);
+				Roll_Puls = 0;
+			}
+			else
+			{
+				ROLL_PWM(1);
+				Roll_Puls = 1;
+			}
+			//===========
+			if(time1_count>0)
+			{
+				if((Vibra_Puls)&&(!VibraStopFlag))
 				{
-			 		VIBRA_PWM(0);
+					VIBRA_PWM(0);
 					Vibra_Puls = 0;
 				}
 				else
@@ -383,15 +417,10 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 					VIBRA_PWM(1);
 					Vibra_Puls = 1;
 				}
-			}
-
-			//转盘马达调速脉冲
-			if(time_count3>Turnplate_Motor_Speed)
-			{
-				time_count3=0;
-				if(Turnplate_Puls)
+				//===============
+				if((Turnplate_Puls)&&(!TurnStopFlag))
 				{
-			 		TURN_PWM(0);
+					TURN_PWM(0);
 					Turnplate_Puls = 0;
 				}
 				else
@@ -399,6 +428,8 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 					TURN_PWM(1);
 					Turnplate_Puls = 1;
 				}
+
+				time1_count = 0;
 			}
 	  }
  }

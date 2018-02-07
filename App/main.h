@@ -90,15 +90,20 @@ typedef struct Menu{
 }Menu_Setting_Typedef;
 
 extern uint32_t Roll_Motor_Delay;
-extern uint8_t  Roll_Motor_Speed;
+extern uint8_t  Roll_Motor_Amp;
 
 extern uint32_t Vibra_Motor_Delay;
-extern uint8_t  Vibra_Motor_Speed;
+extern uint8_t  Vibra_Motor_Amp;
 
 extern uint32_t Turnplate_Motor_Delay;
-extern uint8_t  Turnplate_Motor_Speed;
+extern uint8_t  Turnplate_Motor_Amp;
 
-extern uint32_t time_count1, time_count2, time_count3, time_count4;
-extern uint8_t  Roll_Puls, Vibra_Puls, Turnplate_Puls, Indicate_flag;
+extern uint32_t time_count, time1_count, Roll_Duty_Count, Vibra_Duty_Count, Turn_Duty_Count;
+extern uint8_t  Roll_Duty, Vibra_Duty, Turnplate_Duty, Roll_High_Puls, Vibra_High_Puls, Turn_High_Puls;
+extern uint8_t  Roll_Puls, Vibra_Puls, Turnplate_Puls;
+extern uint8_t  RollStopFlag, VibraStopFlag, TurnStopFlag;
 
 #endif
+
+
+
