@@ -353,83 +353,41 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_BRK_IRQHandler, 13)
 			Roll_Duty_Count++;
 			Vibra_Duty_Count++;
             Turn_Duty_Count++;
-            time1_count++;
 
-            //PWMÂö³å 125HZ
-			if(time_count>10)
-			{
-				RollStopFlag?ROLL_POWER(0):ROLL_POWER(1);
-				VibraStopFlag?VIBRA_POWER(0):VIBRA_POWER(1);
-				TurnStopFlag?TURN_POWER(0):TURN_POWER(1);
-
-				Roll_High_Puls = 1;
-				Vibra_High_Puls = 1;
-				Turn_High_Puls = 1;
-
-				time_count=0;
-				Roll_Duty_Count=0;
-				Vibra_Duty_Count=0;
-				Turn_Duty_Count=0;
-			}
-
-			if((Roll_Duty_Count>Roll_Motor_Amp)&&(Roll_High_Puls == 1)&&(!RollStopFlag))
-			{
-                ROLL_POWER(0);
-				Roll_High_Puls=0;
-				Roll_Duty_Count=0;
-			}
-
-			if((Vibra_Duty_Count>Vibra_Motor_Amp)&&(Vibra_High_Puls == 1)&&(!VibraStopFlag))
-			{
-                VIBRA_POWER(0);
-				Vibra_High_Puls=0;
-				Vibra_Duty_Count=0;
-			}
-
-			if((Turn_Duty_Count>Turnplate_Motor_Amp)&&(Turn_High_Puls == 1)&&(!TurnStopFlag))
-			{
-                TURN_POWER(0);
-				Turn_High_Puls=0;
-				Turn_Duty_Count=0;
-			}
-
-			//µ÷ËÙÂö³å 1.25Khz
-			if((Roll_Puls)&&(!RollStopFlag))
+            //PWMÂö³å£¬¿ØÖÆÂö¿í
+			if(time_count>=10)
 			{
 				ROLL_PWM(0);
+				VIBRA_PWM(0);
+				TURN_PWM(0);
+
 				Roll_Puls = 0;
+				Vibra_Puls = 0;
+				Turnplate_Puls = 0;
+
+				Roll_Duty_Count = 0;
+				Vibra_Duty_Count = 0;
+				Turn_Duty_Count = 0;
+
+				time_count = 0;
 			}
-			else
+
+			if((Roll_Duty_Count>=Roll_Motor_Amp)&&(Roll_Puls == 0))
 			{
-				ROLL_PWM(1);
+                ROLL_PWM(1);
+				Roll_Puls=1;
+			}
+
+			if((Vibra_Duty_Count>=Vibra_Motor_Amp)&&(Vibra_Puls == 0))
+			{
+                VIBRA_PWM(1);
 				Roll_Puls = 1;
 			}
-			//===========
-			if(time1_count>0)
-			{
-				if((Vibra_Puls)&&(!VibraStopFlag))
-				{
-					VIBRA_PWM(0);
-					Vibra_Puls = 0;
-				}
-				else
-				{
-					VIBRA_PWM(1);
-					Vibra_Puls = 1;
-				}
-				//===============
-				if((Turnplate_Puls)&&(!TurnStopFlag))
-				{
-					TURN_PWM(0);
-					Turnplate_Puls = 0;
-				}
-				else
-				{
-					TURN_PWM(1);
-					Turnplate_Puls = 1;
-				}
 
-				time1_count = 0;
+			if((Turn_Duty_Count>=Turnplate_Motor_Amp)&&(Turnplate_Puls == 0))
+			{
+                TURN_PWM(1);
+				Turnplate_Puls = 1;
 			}
 	  }
  }

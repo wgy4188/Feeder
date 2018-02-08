@@ -27,8 +27,8 @@ uint8_t  Vibra_Motor_Amp=0;
 uint32_t Turnplate_Motor_Delay=0;
 uint8_t  Turnplate_Motor_Amp=0;
 
-uint32_t time_count = 0 ,time1_count = 0, Roll_Duty_Count = 0, Vibra_Duty_Count = 0, Turn_Duty_Count = 0;
-uint8_t  Roll_High_Puls = 0, Vibra_High_Puls = 0, Turn_High_Puls = 0;
+uint32_t time_count = 0 ,Roll_Duty_Count = 0, Vibra_Duty_Count = 0, Turn_Duty_Count = 0;
+//uint8_t  Roll_High_Puls = 0, Vibra_High_Puls = 0, Turn_High_Puls = 0;
 uint8_t  Roll_Puls = 0, Vibra_Puls = 0, Turnplate_Puls = 0;
 uint8_t  RollStopFlag = 1, VibraStopFlag = 1, TurnStopFlag = 1;
 
@@ -40,8 +40,6 @@ void delay_loop(u16 wt)
 //主时钟，设置成16M
 void Master_Clk_Inital(void)
 {
-    //时钟调整到16M
-
     /* Clear High speed internal clock prescaler */
     CLK->CKDIVR &= (uint8_t)(~CLK_CKDIVR_HSIDIV);
 
@@ -49,16 +47,15 @@ void Master_Clk_Inital(void)
     CLK->CKDIVR |= (uint8_t)(0x00);
 
 	return;
-
 }
 
 //timer2 计时
-void Timer2_setting(void)
+void Timer2_Config(void)
 {
     TIM2->PSCR = (uint8_t)(6);
 
     /* Set the Autoreload value */
-    TIM2->ARRH = (uint8_t)(24>> 8); //100us 中断一次
+    TIM2->ARRH = (uint8_t)(24>>8); //100us 中断一次
     TIM2->ARRL = (uint8_t)(24);
 
     TIM2->IER |= (uint8_t)0x41;
@@ -70,12 +67,12 @@ void Timer2_setting(void)
 }
 
 //TIM3 翻转电平
-void TIM3_CH2_Edge_PWM(void)
+void Timer3_Config(void)
 {
     TIM3->PSCR = (uint8_t)(0x8);
 
     /* Set the Autoreload value */
-    TIM3->ARRH = (uint8_t)(49>> 8); //800us 中断一次
+    TIM3->ARRH = (uint8_t)(49>>8); //800us 中断一次
     TIM3->ARRL = (uint8_t)(49);
 
 	TIM3->IER |= (uint8_t)0x41;
@@ -90,161 +87,160 @@ void TIM3_CH2_Edge_PWM(void)
 //gpio 初始化GPIO
 void GPIO_Inital(void)
 {
-  GPIOA->ODR &=  ~0xFF; 	//
-  GPIOA->DDR |=  0x42;      //  01000010   浮空输入，推挽输出
-  GPIOA->CR1 |=  0x7A;      //  01111110
+	  GPIOA->ODR &=  ~0xFF; 	//
+	  GPIOA->DDR |=  0x42;      //  01000010   浮空输入，推挽输出
+	  GPIOA->CR1 |=  0x7A;      //  01111110
 
-  GPIOB->ODR &=  ~0xFF; 	//
-  GPIOB->DDR |=  0xFF;      // 11111111
-  GPIOB->CR1 |=  0xFF;      //
+	  GPIOB->ODR &=  ~0xFF; 	//
+	  GPIOB->DDR |=  0xFF;      // 11111111
+	  GPIOB->CR1 |=  0xFF;      //
 
-  GPIOD->ODR &=  ~0xFF; 	//
-  GPIOD->DDR |=  0xB9;      // 10111001
-  GPIOD->CR1 |=  0xB9;      //
+	  GPIOD->ODR &=  ~0xFF; 	//
+	  GPIOD->DDR |=  0xB9;      // 10111001
+	  GPIOD->CR1 |=  0xB9;      //
 
-  GPIOE->ODR &=  ~0xFF; 	//
-  GPIOE->DDR |=  0x29;      // 00101001
-  GPIOE->CR1 |=  0x29;      //
+	  GPIOE->ODR &=  ~0xFF; 	//
+	  GPIOE->DDR |=  0x29;      // 00101001
+	  GPIOE->CR1 |=  0x29;      //
 }
 
 
 //读取数据
 uint8_t FLASH_ReadByte(uint32_t Address)
 {
-  	return(*(PointerAttr uint8_t *) (MemoryAddressCast)Address);
+  		return(*(PointerAttr uint8_t *) (MemoryAddressCast)Address);
 }
 
 //写数据
 void FLASH_ProgramByte(uint32_t Address, uint8_t Data)
 {
-  	*(PointerAttr uint8_t*) (MemoryAddressCast)Address = Data;
+  		*(PointerAttr uint8_t*) (MemoryAddressCast)Address = Data;
 }
 
 //写参数
 void Write_Parameters_to_flash(void)
 {
-    //解锁EEPROM
-    FLASH->DUKR = FLASH_RASS_KEY2;
-    FLASH->DUKR = FLASH_RASS_KEY1;
+		//解锁EEPROM
+		FLASH->DUKR = FLASH_RASS_KEY2;
+		FLASH->DUKR = FLASH_RASS_KEY1;
 
-    while((FLASH->IAPSR&0x08) == 0);
-    //解锁成功
-    //EEPROM区从0X004001开始
-    FLASH_ProgramByte(0x4001,Menu_Setting.Counter>>8);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4002,Menu_Setting.Counter);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4003,Menu_Setting.Setting_Counter_Value);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4004,Menu_Setting.Counter_Mode);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4005,Menu_Setting.Beep_Mode);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4006,Menu_Setting.Vibra_Delay_Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4007,Menu_Setting.Vibra_amplitude_Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4008,Menu_Setting.Roller_Delay_Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4009,Menu_Setting.Roller_amplitude_Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4010,Menu_Setting.Turnplate_amplitude_Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-    FLASH_ProgramByte(0x4011,Menu_Setting.Vibra_Direction__Setting);
-    while((FLASH->IAPSR&0x04) == 0);
-	FLASH_ProgramByte(0x4012,Menu_Setting.Roller_Direction);
-    while((FLASH->IAPSR&0x04) == 0);
-	FLASH_ProgramByte(0x4013,Menu_Setting.Turnplate_Direction);
-    while((FLASH->IAPSR&0x04) == 0);
+		while((FLASH->IAPSR&0x08) == 0);
+		//解锁成功
+		//EEPROM区从0X004001开始
+		FLASH_ProgramByte(0x4001,Menu_Setting.Counter>>8);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4002,Menu_Setting.Counter);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4003,Menu_Setting.Setting_Counter_Value);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4004,Menu_Setting.Counter_Mode);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4005,Menu_Setting.Beep_Mode);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4006,Menu_Setting.Vibra_Delay_Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4007,Menu_Setting.Vibra_amplitude_Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4008,Menu_Setting.Roller_Delay_Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4009,Menu_Setting.Roller_amplitude_Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4010,Menu_Setting.Turnplate_amplitude_Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4011,Menu_Setting.Vibra_Direction__Setting);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4012,Menu_Setting.Roller_Direction);
+		while((FLASH->IAPSR&0x04) == 0);
+		FLASH_ProgramByte(0x4013,Menu_Setting.Turnplate_Direction);
+		while((FLASH->IAPSR&0x04) == 0);
 
-    //锁定EEPROM 区
-    FLASH->DUKR &=~0x08;
+		//锁定EEPROM 区
+		FLASH->DUKR &=~0x08;
 
-	return;
+		return;
 }
 
 //恢复参数
 void Read_Parameters_from_flash(void)
 {
-    Menu_Setting.Counter  = (uint16_t)FLASH_ReadByte(0x4001)<<8;
-    Menu_Setting.Counter |= (uint16_t)FLASH_ReadByte(0x4002);
-    Menu_Setting.Setting_Counter_Value = FLASH_ReadByte(0x4003);
-    Menu_Setting.Counter_Mode = FLASH_ReadByte(0x4004);
-    Menu_Setting.Beep_Mode = FLASH_ReadByte(0x4005);
-    Menu_Setting.Vibra_Delay_Setting = FLASH_ReadByte(0x4006);
-    Menu_Setting.Vibra_amplitude_Setting = FLASH_ReadByte(0x4007);
-    Menu_Setting.Roller_Delay_Setting = FLASH_ReadByte(0x4008);
-    Menu_Setting.Roller_amplitude_Setting = FLASH_ReadByte(0x4009);
-    Menu_Setting.Turnplate_amplitude_Setting = FLASH_ReadByte(0x4010);
-    Menu_Setting.Vibra_Direction__Setting = FLASH_ReadByte(0x4011);
-	Menu_Setting.Roller_Direction = FLASH_ReadByte(0x4012);
-	Menu_Setting.Turnplate_Direction = FLASH_ReadByte(0x4013);
+		Menu_Setting.Counter  = (uint16_t)FLASH_ReadByte(0x4001)<<8;
+		Menu_Setting.Counter |= (uint16_t)FLASH_ReadByte(0x4002);
+		Menu_Setting.Setting_Counter_Value = FLASH_ReadByte(0x4003);
+		Menu_Setting.Counter_Mode = FLASH_ReadByte(0x4004);
+		Menu_Setting.Beep_Mode = FLASH_ReadByte(0x4005);
+		Menu_Setting.Vibra_Delay_Setting = FLASH_ReadByte(0x4006);
+		Menu_Setting.Vibra_amplitude_Setting = FLASH_ReadByte(0x4007);
+		Menu_Setting.Roller_Delay_Setting = FLASH_ReadByte(0x4008);
+		Menu_Setting.Roller_amplitude_Setting = FLASH_ReadByte(0x4009);
+		Menu_Setting.Turnplate_amplitude_Setting = FLASH_ReadByte(0x4010);
+		Menu_Setting.Vibra_Direction__Setting = FLASH_ReadByte(0x4011);
+		Menu_Setting.Roller_Direction = FLASH_ReadByte(0x4012);
+		Menu_Setting.Turnplate_Direction = FLASH_ReadByte(0x4013);
 
-	return;
-
+		return;
 }
 
 //硬件初始化
 void Bsp_Inital(void)
 {
-    //主时钟设置成16M
-    Master_Clk_Inital();
+		//主时钟设置成16M
+		Master_Clk_Inital();
 
-	//IO初始化
-    GPIO_Inital();
+		//IO初始化
+		GPIO_Inital();
 
-    BEEP_A(1);
+		BEEP_A(1);
 
-	//读取EEPROM数据
-    Read_Parameters_from_flash();
+		//读取EEPROM数据
+		Read_Parameters_from_flash();
 
-	//电机1
-    VIBRA_POWER(0);
-	VIBRA_DIR(0);
-	VIBRA_PWM(1);
+		//电机1
+		VIBRA_POWER(0);
+		VIBRA_DIR(0);
+		VIBRA_PWM(1);
 
-	//电机2
-    TURN_POWER(0);
-	TURN_DIR(0);
-	TURN_PWM(1);
+		//电机2
+		TURN_POWER(0);
+		TURN_DIR(0);
+		TURN_PWM(1);
 
-    //电机3
-    ROLL_POWER(0);
-	ROLL_DIR(0);
-	ROLL_PWM(1);
+		//电机3
+		ROLL_POWER(0);
+		ROLL_DIR(0);
+		ROLL_PWM(1);
 
-    //测试等
-    WORK_LED(0);
-	INDICATE(0);
+		//测试等
+		WORK_LED(0);
+		INDICATE(0);
 
-    //LED消影
-    TUBE_CLR(0);
+		//LED消影
+		TUBE_CLR(0);
 
 
-    //定时器,定时100us
-    Timer2_setting();
-    TIM3_CH2_Edge_PWM();
+		//定时器
+		Timer2_Config();
+		Timer3_Config();
 
-	return;
+		return;
 }
 
 
 //串行数据输送 MSB
 void Display_tube(uint8_t Char_DATA)
 {
-     int8_t numb_counter=0;
-     TUBE_CLK(1);
-     delay_loop(10);
-     for(numb_counter=7;numb_counter>=0;numb_counter--)
-     {
-           TUBE_CLK(0);
-           if((Char_DATA>>numb_counter)&0X01) {TUBE_DATA(1);}//上升沿传入数据位
-           else{TUBE_DATA(0);}
-           delay_loop(10);
-           TUBE_CLK(1);
-           delay_loop(10);
-     }
-     TUBE_CLK(1);
+		 int8_t numb_counter=0;
+		 TUBE_CLK(1);
+		 delay_loop(10);
+		 for(numb_counter=7;numb_counter>=0;numb_counter--)
+		 {
+			   TUBE_CLK(0);
+			   if((Char_DATA>>numb_counter)&0X01) {TUBE_DATA(1);}//上升沿传入数据位
+			   else{TUBE_DATA(0);}
+			   delay_loop(10);
+			   TUBE_CLK(1);
+			   delay_loop(10);
+		 }
+		 TUBE_CLK(1);
 }
 
 void Scan_Key(uint8_t CHAR1,uint8_t CHAR2,uint8_t CHAR3,uint8_t CHAR4)
@@ -926,106 +922,108 @@ void Setting_Key_Process(void)
 
 void main(void)
 {
-  Bsp_Inital();
-  Read_Parameters_from_flash();
+	  Bsp_Inital();
+	  Read_Parameters_from_flash();
 
-  if(Menu_Setting.Counter_Mode==0)
-  {
-		Menu_Setting.Counter = 0;
-  }
-  else
-  {
-		Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
-  }
+	  if(Menu_Setting.Counter_Mode==0)
+	  {
+			Menu_Setting.Counter = 0;
+	  }
+	  else
+	  {
+			Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
+	  }
 
-  while(1)
-  {
-       Ok_Key_Process();
-       Setting_Key_Process();
-       Scan_Reset_Signal();
+	  while(1)
+	  {
+		   Ok_Key_Process();
+		   Setting_Key_Process();
+		   Scan_Reset_Signal();
 
-	   //check gate
-       if(GATE == 0)
-	   {
-	   		INDICATE(0);
-	   }
-	   else
-	   {
-	   		INDICATE(1);
-	   }
+		   //check gate
+		   if(GATE == 0)
+		   {
+				INDICATE(0);
+		   }
+		   else
+		   {
+				INDICATE(1);
+		   }
 
-	   if(SENSOR == 0)
-	   {
-			TURN_POWER(0);
-			VIBRA_PWM(1);
-			TurnStopFlag = 1;
-	   }
+		   ///////////////
+		   if(SENSOR == 0)
+		   {
+				TURN_POWER(0);
+				VIBRA_PWM(1);
+				TurnStopFlag = 1;
+		   }
 
-	   if(BUTTON == 0)
-	   {
-		    TIM3->CR1 |= (uint8_t)0x01;
+		   if(BUTTON == 0)
+		   {
+			    TIM3->CR1 |= (uint8_t)0x01;
 
-			Roll_Motor_Delay =  (uint32_t)Menu_Setting.Roller_Delay_Setting * 1000 * 10;  //设置滚筒延时
-			Roll_Motor_Amp =  Menu_Setting.Roller_amplitude_Setting;                      //设置滚筒速度
-			ROLL_DIR(Menu_Setting.Roller_Direction);                                      //设置方向
-			RollStopFlag=0;
-            ROLL_PWM(0);
+				Roll_Motor_Delay =  (uint32_t)Menu_Setting.Roller_Delay_Setting * 1000 * 10;  //设置滚筒延时
+				Roll_Motor_Amp =  Menu_Setting.Roller_amplitude_Setting;                      //设置滚筒速度
+				ROLL_DIR(Menu_Setting.Roller_Direction);                                      //设置方向
+				ROLL_POWER(1);   //滚筒电机电源
+				RollStopFlag=0;
 
-			Vibra_Motor_Delay = (uint32_t)Menu_Setting.Vibra_Delay_Setting * 1000 * 10;  //设置振动延时
-			Vibra_Motor_Amp = Menu_Setting.Vibra_amplitude_Setting;                    //设置振动速度
-			VIBRA_DIR(Menu_Setting.Vibra_Direction__Setting);                            //设置方向
-			VibraStopFlag=0;
-			VIBRA_PWM(0);
+				Vibra_Motor_Delay = (uint32_t)Menu_Setting.Vibra_Delay_Setting * 1000 * 10;  //设置振动延时
+				Vibra_Motor_Amp = Menu_Setting.Vibra_amplitude_Setting;                      //设置振动速度
+				VIBRA_DIR(Menu_Setting.Vibra_Direction__Setting);                            //设置方向
+				VIBRA_POWER(1);  //振动电机电源
+				VibraStopFlag=0;
 
-			Turnplate_Motor_Amp = Menu_Setting.Turnplate_amplitude_Setting;            //设置转盘速度
-			TURN_DIR(Menu_Setting.Turnplate_Direction);                                  //设置方向
-			TurnStopFlag=0;
-			TURN_PWM(0);
+				Turnplate_Motor_Amp = Menu_Setting.Turnplate_amplitude_Setting;             //设置转盘速度
+				TURN_DIR(Menu_Setting.Turnplate_Direction);                                 //设置方向
+				TURN_POWER(1);   //转盘电机电源
+				TurnStopFlag=0;
 
-	   }
+		   }
 
-	   if(Roll_Motor_Delay <= 0)
-	   {
-	   		ROLL_POWER(0);
-			ROLL_PWM(1);
-	   		RollStopFlag = 1;
-	   }
+		   if(Roll_Motor_Delay <= 0)
+		   {
+				ROLL_POWER(0);
+				ROLL_PWM(1);
+				RollStopFlag = 1;
+		   }
 
-	   if(Vibra_Motor_Delay <= 0)
-	   {
-	   		VIBRA_POWER(0);
-			VIBRA_PWM(1);
-	   		VibraStopFlag = 1;
-	   }
+		   if(Vibra_Motor_Delay <= 0)
+		   {
+				VIBRA_POWER(0);
+				VIBRA_PWM(1);
+				VibraStopFlag = 1;
+		   }
 
-   	   if(SENSOR == 0)
-	   {
-			TURN_POWER(0);
-			TURN_PWM(1);
-			TurnStopFlag = 1;
+		   if(SENSOR == 0)
+		   {
+				TURN_POWER(0);
+				TURN_PWM(1);
+				TurnStopFlag = 1;
 
-			if(Menu_Setting.Counter_Mode==0)//递增计数
-			{
-				Menu_Setting.Counter++;
-				if(Menu_Setting.Counter >= Menu_Setting.Setting_Counter_Value*100 )
+				if(Menu_Setting.Counter_Mode==0)//递增计数
 				{
-					Menu_Setting.Counter = 0;
+					Menu_Setting.Counter++;
+					if(Menu_Setting.Counter >= Menu_Setting.Setting_Counter_Value*100 )
+					{
+						Menu_Setting.Counter = 0;
+					}
 				}
-			}
-			else //递减计数
-			{
-			    Menu_Setting.Counter--;
-				if(Menu_Setting.Counter == 0)
+				else //递减计数
 				{
-					Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
+					Menu_Setting.Counter--;
+					if(Menu_Setting.Counter == 0)
+					{
+						Menu_Setting.Counter = Menu_Setting.Setting_Counter_Value*100;
+					}
 				}
-			}
-	   }
+		   }
 
-	   if(RollStopFlag && VibraStopFlag && TurnStopFlag)//都停止了，关闭脉冲发生
-	   {
-	   		TIM3->CR1 &= ~((uint8_t)0x01);
-	   }
-  }
-
+		   if(RollStopFlag && VibraStopFlag && TurnStopFlag)//都停止了，关闭脉冲发生
+		   {
+				TIM3->CR1 &= ~((uint8_t)0x01);
+		   }
+	  }
 }
+
+

@@ -12,10 +12,10 @@
 //输出功能引脚
 
 //motor3  滚筒
-#define   ROLL_POWER(X)      (uint8_t)X? (GPIOD->ODR |= 0x01):(GPIOD->ODR &= ~0x01)//-->PD0
-#define   ROLL_FG(X)       	 (uint8_t)X? (GPIOD->ODR |= 0x04):(GPIOD->ODR &= ~0x04)//-->PD2
-#define   ROLL_PWM(X)      	 (uint8_t)X? (GPIOD->ODR |= 0x08):(GPIOD->ODR &= ~0x08)//-->PD3
-#define   ROLL_DIR(X)      	 (uint8_t)X? (GPIOD->ODR |= 0x10):(GPIOD->ODR &= ~0x10)//-->PD4
+#define   ROLL_POWER(X)      (uint8_t)X? (GPIOD->ODR |= 0x01):(GPIOD->ODR &= ~0x01)//PD0
+#define   ROLL_FG(X)       	 (uint8_t)X? (GPIOD->ODR |= 0x04):(GPIOD->ODR &= ~0x04)//PD2
+#define   ROLL_PWM(X)      	 (uint8_t)X? (GPIOD->ODR |= 0x08):(GPIOD->ODR &= ~0x08)//PD3
+#define   ROLL_DIR(X)      	 (uint8_t)X? (GPIOD->ODR |= 0x10):(GPIOD->ODR &= ~0x10)//PD4
 //motor1  振动
 #define   VIBRA_POWER(X)     (uint8_t)X? (GPIOD->ODR |= 0x20):(GPIOD->ODR &= ~0x20)//PD5
 #define   VIBRA_FG(X)        (uint8_t)X? (GPIOD->ODR |= 0x40):(GPIOD->ODR &= ~0x40)//PD6
@@ -39,7 +39,7 @@
 #define   RELAY(X)           (uint8_t)X? (GPIOB->ODR |= 0X20):(GPIOB->ODR &= ~0X20)//PB5
 
 //BEEP
-#define   BEEP_A(X)            (uint8_t)X? (GPIOB->ODR |= 0X40):(GPIOB->ODR &= ~0X40)//PB6
+#define   BEEP_A(X)          (uint8_t)X? (GPIOB->ODR |= 0X40):(GPIOB->ODR &= ~0X40)//PB6
 
 //led
 #define   WORK_LED(X)        (uint8_t)X? (GPIOB->ODR |= 0X80):(GPIOB->ODR &= ~0X80)//PB7
@@ -51,13 +51,13 @@
 #define   KEY         		 (GPIOA->IDR&0x20)//PA5
 
 //flash key
-#define FLASH_RASS_KEY1 ((uint8_t)0x56) /*!< First RASS key */
-#define FLASH_RASS_KEY2 ((uint8_t)0xAE) /*!< Second RASS key */
+#define   FLASH_RASS_KEY1    ((uint8_t)0x56) /*First RASS key */
+#define   FLASH_RASS_KEY2    ((uint8_t)0xAE) /*Second RASS key */
 
 //输入sensor signal
-#define  BUTTON             (GPIOA->IDR&0x04)   //PA2
-#define  GATE          		(GPIOA->IDR&0x08)   //PA3
-#define  SENSOR        		(GPIOA->IDR&0x10)   //PA4
+#define   BUTTON             (GPIOA->IDR&0x04)   //PA2
+#define   GATE          	 (GPIOA->IDR&0x08)   //PA3
+#define   SENSOR        	 (GPIOA->IDR&0x10)   //PA4
 
 //Setting键，菜单状态
 typedef struct Menu{
@@ -98,8 +98,8 @@ extern uint8_t  Vibra_Motor_Amp;
 extern uint32_t Turnplate_Motor_Delay;
 extern uint8_t  Turnplate_Motor_Amp;
 
-extern uint32_t time_count, time1_count, Roll_Duty_Count, Vibra_Duty_Count, Turn_Duty_Count;
-extern uint8_t  Roll_Duty, Vibra_Duty, Turnplate_Duty, Roll_High_Puls, Vibra_High_Puls, Turn_High_Puls;
+extern uint32_t time_count, Roll_Duty_Count, Vibra_Duty_Count, Turn_Duty_Count;
+//extern uint8_t  Roll_Duty, Vibra_Duty, Turnplate_Duty, Roll_High_Puls, Vibra_High_Puls, Turn_High_Puls;
 extern uint8_t  Roll_Puls, Vibra_Puls, Turnplate_Puls;
 extern uint8_t  RollStopFlag, VibraStopFlag, TurnStopFlag;
 
